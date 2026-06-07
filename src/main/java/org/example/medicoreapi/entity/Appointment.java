@@ -1,30 +1,48 @@
 package org.example.medicoreapi.entity;
 
-/**
- * ===================================================================
- * ENTITY: Appointment (Lịch khám bệnh)
- * NGƯỜI LÀM: Người 3 - Lê Duy Minh + Người 4 - Phùng Văn Vượng (phối hợp)
- * CHỊU TRÁCH NHIỆM CHÍNH: Người 4 - Phùng Văn Vượng (tạo file)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Entity lưu thông tin lịch hẹn khám bệnh
- * - @Entity, @Table(name = "appointments")
- *
- * CÁC TRƯỜNG CẦN CÓ:
- * - id (Long, @GeneratedValue)
- * - appointmentDate (LocalDate)
- * - timeSlot (String hoặc LocalTime) - khung giờ khám
- * - status (Enum: PENDING, CONFIRMED, COMPLETED, CANCELLED)
- * - notes (String) - ghi chú
- * - createdAt (LocalDateTime)
- *
- * QUAN HỆ:
- * - @ManyToOne với Doctor
- * - @ManyToOne với Patient
- * - @OneToOne với Prescription (sau khi khám xong)
- *
- * LƯU Ý:
- * - Tạo enum AppointmentStatus trong package enums
- * - Phối hợp Người 3 (Minh) và Người 4 (Vượng) thống nhất cấu trúc
- */
+import jakarta.persistence.*;
+import lombok.*;
+import org.example.medicoreapi.enums.AppointmentStatus;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "appointments")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Appointment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private LocalDate appointmentDate;
+
+    private String timeSlot;
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
+
+    private String notes;
+
+    private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    private Doctor doctor;
+
+    @ManyToOne
+    @JoinColumn(name = "patient_id")
+    private Patient patient;
+
+    @OneToOne(mappedBy = "appointment")
+    private Prescription prescription;
+
+    @PrePersist
+    public void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+}
