@@ -1,20 +1,18 @@
 package org.example.medicoreapi.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-
-import java.time.LocalDate;
-
-@Data
-public class PatientRequest {
-    @NotBlank(message = "Full name is required")
-    private String fullName;
-
-    private LocalDate dateOfBirth;
-
-    private String gender;
-
-    private String phone;
-
-    private String address;
-}
+/**
+ * ===================================================================
+ * DTO: PatientRequest
+ * NGƯỜI LÀM: Người 4 - Phùng Văn Vượng (Patient + Booking)
+ * ===================================================================
+ *
+ * HƯỚNG DẪN:
+ * - DTO nhận dữ liệu khi tạo/cập nhật bệnh nhân
+ *
+ * CÁC TRƯỜNG:
+ * - fullName (String, @NotBlank)
+ * - dateOfBirth (LocalDate)
+ * - gender (String)
+ * - phone (String)
+ * - address (String)
+ */

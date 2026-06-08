@@ -1,14 +1,11 @@
 package org.example.medicoreapi.repository;
 
-/**
- * ===================================================================
- * REPOSITORY: DoctorRepository
- * NGƯỜI LÀM: Người 3 - Lê Duy Minh (Doctor + Appointment)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Extends JpaRepository<Doctor, Long>
- * - Thêm query method nếu cần:
- *   + Optional<Doctor> findByUserId(Long userId)
- *   + List<Doctor> findBySpecialization(String specialization)
- */
+import org.example.medicoreapi.entity.Doctor;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface DoctorRepository extends JpaRepository<Doctor, Long> {
+	Optional<Doctor> findByUsername(String username);
+}
+
