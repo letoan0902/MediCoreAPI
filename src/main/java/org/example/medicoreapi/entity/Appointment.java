@@ -10,39 +10,31 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "appointments")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Appointment {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	private LocalDate appointmentDate;
 
-    private LocalDate appointmentDate;
+	private String timeSlot;
 
-    private String timeSlot;
+	@Enumerated(EnumType.STRING)
+	private AppointmentStatus status;
 
-    @Enumerated(EnumType.STRING)
-    private AppointmentStatus status;
+	@Column(length = 1000)
+	private String notes;
 
-    private String notes;
+	// For simplicity we store patient name directly; patient entity may be linked later
+	private String patientName;
 
-    private LocalDateTime createdAt;
+	private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id")
-    private Doctor doctor;
-
-    @ManyToOne
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
-
-    @OneToOne(mappedBy = "appointment")
-    private Prescription prescription;
-
-    @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "doctor_id")
+	private Doctor doctor;
 }
+

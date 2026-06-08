@@ -1,12 +1,13 @@
 package org.example.medicoreapi;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+@SpringBootTest
 class MediCoreApiApplicationTests {
+
     @Test
-    void applicationClassExists() {
-        assertThat(MediCoreApiApplication.class).isNotNull();
+    void contextLoads() {
     }
+
 }

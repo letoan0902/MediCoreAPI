@@ -1,17 +1,22 @@
 package org.example.medicoreapi.dto.request;
 
-/**
- * ===================================================================
- * DTO: DoctorRequest
- * NGƯỜI LÀM: Người 3 - Lê Duy Minh (Doctor + Appointment)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - DTO nhận dữ liệu khi tạo/cập nhật bác sĩ
- *
- * CÁC TRƯỜNG:
- * - fullName (String, @NotBlank)
- * - specialization (String)
- * - phone (String)
- * - email (String, @Email)
- */
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class DoctorRequest {
+	@NotBlank
+	private String fullName;
+
+	private String specialization;
+
+	private String phone;
+
+	@Email
+	private String email;
+
+	// Optional: link to existing user by username
+	private String username;
+}
+

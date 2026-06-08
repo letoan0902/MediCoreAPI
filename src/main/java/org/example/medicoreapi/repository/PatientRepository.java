@@ -1,10 +1,13 @@
 package org.example.medicoreapi.repository;
 
-import org.example.medicoreapi.entity.Patient;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
-
-public interface PatientRepository extends JpaRepository<Patient, Long> {
-    Optional<Patient> findByUserId(Long userId);
-}
+/**
+ * ===================================================================
+ * REPOSITORY: PatientRepository
+ * NGƯỜI LÀM: Người 4 - Phùng Văn Vượng (Patient + Booking)
+ * ===================================================================
+ *
+ * HƯỚNG DẪN:
+ * - Extends JpaRepository<Patient, Long>
+ * - Thêm query method:
+ *   + Optional<Patient> findByUserId(Long userId)
+ */

@@ -1,26 +1,18 @@
 package org.example.medicoreapi.dto.response;
 
-import lombok.*;
-import org.example.medicoreapi.enums.AppointmentStatus;
+import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class AppointmentResponse {
-    private Long id;
-
-    private String doctorName;
-
-    private String patientName;
-
-    private LocalDate appointmentDate;
-
-    private String timeSlot;
-
-    private AppointmentStatus status;
-
-    private String notes;
+	private Long id;
+	private LocalDate appointmentDate;
+	private String timeSlot;
+	private String status;
+	private String notes;
+	private String patientName;
+	private Long doctorId;
+	private String doctorName;
 }
+
