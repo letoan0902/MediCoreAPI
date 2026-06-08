@@ -1,27 +1,55 @@
 package org.example.medicoreapi.entity;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * ===================================================================
  * ENTITY: Prescription (Đơn thuốc)
  * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
  * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Entity lưu thông tin đơn thuốc do bác sĩ kê sau khi khám
- * - @Entity, @Table(name = "prescriptions")
- *
- * CÁC TRƯỜNG CẦN CÓ:
- * - id (Long, @GeneratedValue)
- * - diagnosis (String) - chuẩn đoán bệnh
- * - notes (String) - ghi chú bác sĩ
- * - createdAt (LocalDateTime)
- *
- * QUAN HỆ:
- * - @ManyToOne với Doctor (bác sĩ kê đơn)
- * - @ManyToOne với Patient (bệnh nhân được kê)
- * - @OneToOne với Appointment (từ cuộc hẹn nào)
- * - @OneToMany với PrescriptionDetail (chi tiết thuốc)
- *
- * LƯU Ý:
- * - Dùng Lombok: @Data, @Builder, @NoArgsConstructor, @AllArgsConstructor
  */
+@Entity
+@Table(name = "prescriptions")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Prescription {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(columnDefinition = "TEXT")
+    private String diagnosis;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id")
+    private Doctor doctor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id")
+    private Patient patient;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id")
+    private Appointment appointment;
+
+    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL)
+    private List<PrescriptionDetail> prescriptionDetails;
+}

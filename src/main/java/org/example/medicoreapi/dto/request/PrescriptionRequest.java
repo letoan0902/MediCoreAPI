@@ -1,23 +1,47 @@
 package org.example.medicoreapi.dto.request;
 
-/**
- * ===================================================================
- * DTO: PrescriptionRequest
- * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - DTO nhận dữ liệu khi bác sĩ tạo đơn thuốc
- *
- * CÁC TRƯỜNG:
- * - appointmentId (Long, @NotNull) - từ cuộc hẹn nào
- * - diagnosis (String, @NotBlank) - chuẩn đoán
- * - notes (String)
- * - items (List<PrescriptionItemRequest>) - danh sách thuốc kê
- *
- * LƯU Ý:
- * - Tạo thêm inner class hoặc class riêng PrescriptionItemRequest gồm:
- *   + medicineId (Long)
- *   + quantity (Integer)
- *   + dosage (String) - liều dùng
- */
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PrescriptionRequest {
+
+    @NotNull(message = "ID cuộc hẹn không được để trống")
+    private Long appointmentId;
+
+    @NotBlank(message = "Chuẩn đoán không được để trống")
+    private String diagnosis;
+
+    private String notes;
+
+    @NotEmpty(message = "Đơn thuốc phải có ít nhất một loại thuốc")
+    private List<PrescriptionItemRequest> items;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PrescriptionItemRequest {
+        @NotNull(message = "ID thuốc không được để trống")
+        private Long medicineId;
+
+        @NotNull(message = "Số lượng không được để trống")
+        private Integer quantity;
+
+        @NotBlank(message = "Liều dùng không được để trống")
+        private String dosage;
+
+        private String notes;
+    }
+}
