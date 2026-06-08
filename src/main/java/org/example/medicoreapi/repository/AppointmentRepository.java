@@ -1,16 +1,22 @@
 package org.example.medicoreapi.repository;
 
-/**
- * ===================================================================
- * REPOSITORY: AppointmentRepository
- * NGƯỜI LÀM: Người 4 - Phùng Văn Vượng (tạo), Người 3 - Lê Duy Minh (dùng chung)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Extends JpaRepository<Appointment, Long>
- * - Query methods cần thiết:
- *   + List<Appointment> findByDoctorId(Long doctorId)
- *   + List<Appointment> findByPatientId(Long patientId)
- *   + List<Appointment> findByDoctorIdAndAppointmentDate(Long doctorId, LocalDate date)
- *   + Sử dụng Stream API khi xử lý danh sách tại Service layer
- */
+import org.example.medicoreapi.entity.Appointment;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+
+    List<Appointment> findByDoctorId(Long doctorId);
+
+    List<Appointment> findByPatientId(Long patientId);
+
+    List<Appointment> findByDoctorIdAndAppointmentDate(Long doctorId, LocalDate appointmentDate);
+
+    boolean existsByDoctorIdAndAppointmentDateAndTimeSlot(
+            Long doctorId,
+            LocalDate appointmentDate,
+            String timeSlot
+    );
+}

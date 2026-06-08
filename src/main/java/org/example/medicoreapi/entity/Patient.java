@@ -1,30 +1,61 @@
 package org.example.medicoreapi.entity;
 
-/**
- * ===================================================================
- * ENTITY: Patient (Thông tin Bệnh nhân)
- * NGƯỜI LÀM: Người 4 - Phùng Văn Vượng (Patient + Booking)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Entity lưu thông tin chi tiết bệnh nhân
- * - @Entity, @Table(name = "patients")
- *
- * CÁC TRƯỜNG CẦN CÓ:
- * - id (Long, @GeneratedValue)
- * - fullName (String, not null)
- * - dateOfBirth (LocalDate)
- * - gender (String)
- * - phone (String)
- * - address (String)
- * - createdAt, updatedAt (LocalDateTime)
- *
- * QUAN HỆ:
- * - @OneToOne với User
- * - @OneToMany với Appointment
- * - @OneToMany với Prescription
- *
- * LƯU Ý:
- * - Dùng Lombok: @Data, @Builder, @NoArgsConstructor, @AllArgsConstructor
- * - Phối hợp với Người 2 (Đức) để thống nhất quan hệ User-Patient
- */
+import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.security.core.userdetails.User;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name = "patients")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Patient {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String fullName;
+
+    private LocalDate dateOfBirth;
+
+    private String gender;
+
+    private String phone;
+
+    private String address;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToMany(mappedBy = "patient")
+    private List<Appointment> appointments;
+
+    @OneToMany(mappedBy = "patient")
+    private List<Prescription> prescriptions;
+
+    @PrePersist
+    public void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    @Column(name = "user_id")
+    private Long userId;
+}
