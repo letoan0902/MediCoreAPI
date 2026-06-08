@@ -1,36 +1,62 @@
 package org.example.medicoreapi.config;
 
-/**
- * ===================================================================
- * CONFIG: SecurityConfig (Cấu hình Spring Security)
- * NGƯỜI LÀM: Người 2 - Lê Tiến Đức (Security + User/Admin)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - @Configuration, @EnableWebSecurity, @EnableMethodSecurity
- * - Inject JwtAuthenticationFilter, UserService (UserDetailsService)
- *
- * CÁC BEAN CẦN KHAI BÁO:
- *
- * 1. SecurityFilterChain filterChain(HttpSecurity http)
- *    - Disable CSRF (vì dùng JWT, không dùng session)
- *    - Session: STATELESS
- *    - Cấu hình authorizeHttpRequests:
- *      + permitAll: /api/auth/login, /api/auth/refresh
- *      + Còn lại: authenticated
- *    - Thêm JwtAuthenticationFilter trước UsernamePasswordAuthenticationFilter
- *    - Xử lý exception: authenticationEntryPoint trả 401
- *
- * 2. PasswordEncoder passwordEncoder()
- *    - return new BCryptPasswordEncoder();
- *
- * 3. AuthenticationManager authenticationManager(AuthenticationConfiguration config)
- *    - return config.getAuthenticationManager();
- *
- * 4. AuthenticationProvider authenticationProvider()
- *    - DaoAuthenticationProvider, set UserDetailsService và PasswordEncoder
- *
- * LƯU Ý:
- * - Phối hợp Người 1 (Anh) về JwtAuthenticationFilter
- * - @EnableMethodSecurity để @PreAuthorize hoạt động
- */
+import org.example.medicoreapi.service.UserService;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+    private final UserService userService;
+
+    public SecurityConfig(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/login", "/api/auth/refresh").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized"))
+                )
+                .authenticationProvider(authenticationProvider())
+                .build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+}
