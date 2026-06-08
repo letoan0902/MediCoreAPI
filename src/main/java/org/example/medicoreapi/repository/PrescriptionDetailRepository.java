@@ -1,13 +1,10 @@
 package org.example.medicoreapi.repository;
 
-/**
- * ===================================================================
- * REPOSITORY: PrescriptionDetailRepository
- * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Extends JpaRepository<PrescriptionDetail, Long>
- * - Query methods:
- *   + List<PrescriptionDetail> findByPrescriptionId(Long prescriptionId)
- */
+import org.example.medicoreapi.entity.PrescriptionDetail;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface PrescriptionDetailRepository extends JpaRepository<PrescriptionDetail, Long> {
+    List<PrescriptionDetail> findByPrescriptionId(Long prescriptionId);
+}

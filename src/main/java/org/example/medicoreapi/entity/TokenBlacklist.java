@@ -1,24 +1,54 @@
 package org.example.medicoreapi.entity;
 
-/**
- * ===================================================================
- * ENTITY: TokenBlacklist (Danh sách đen token đã bị thu hồi)
- * NGƯỜI LÀM: Người 1 - Phạm Phương Anh (Auth + JWT)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Entity lưu các token đã bị revoke (logout hoặc admin khóa)
- * - @Entity, @Table(name = "token_blacklist")
- *
- * CÁC TRƯỜNG CẦN CÓ:
- * - id (Long, @GeneratedValue)
- * - token (String, columnDefinition = "TEXT") - chuỗi JWT token
- * - tokenType (String) - "ACCESS" hoặc "REFRESH"
- * - expiryDate (LocalDateTime) - ngày hết hạn token (dùng để dọn dẹp DB)
- * - revokedAt (LocalDateTime) - thời điểm bị thu hồi
- * - revokedBy (String) - ai thu hồi (user tự logout hay admin)
- *
- * LƯU Ý:
- * - Có thể thêm @Index trên cột token để tăng tốc truy vấn kiểm tra blacklist
- * - Dùng Lombok: @Data, @Builder, @NoArgsConstructor, @AllArgsConstructor
- */
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "token_blacklist", indexes = {
+        @Index(name = "idx_token_blacklist_token", columnList = "token"),
+        @Index(name = "idx_token_blacklist_expiry", columnList = "expiry_date")
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class TokenBlacklist {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 2048)
+    private String token;
+
+    @Column(nullable = false, length = 20)
+    private String tokenType;
+
+    private String username;
+    @Column(name = "expiry_date")
+    private LocalDateTime expiryDate;
+
+    @Column(name = "revoked_at")
+    private LocalDateTime revokedAt;
+    private String revokedBy;
+
+    @PrePersist
+    void onCreate() {
+        if (revokedAt == null) {
+            revokedAt = LocalDateTime.now();
+        }
+    }
+}

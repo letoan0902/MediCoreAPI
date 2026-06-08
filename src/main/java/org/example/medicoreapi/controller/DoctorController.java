@@ -2,6 +2,7 @@ package org.example.medicoreapi.controller;
 
 import jakarta.validation.Valid;
 import org.example.medicoreapi.dto.request.DoctorRequest;
+import org.example.medicoreapi.dto.response.ApiResponse;
 import org.example.medicoreapi.dto.response.AppointmentResponse;
 import org.example.medicoreapi.dto.response.DoctorResponse;
 import org.example.medicoreapi.service.DoctorService;
@@ -25,47 +26,47 @@ public class DoctorController {
 	// ADMIN - create doctor
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
-	public ResponseEntity<DoctorResponse> createDoctor(@Valid @RequestBody DoctorRequest request) {
+	public ResponseEntity<ApiResponse<DoctorResponse>> createDoctor(@Valid @RequestBody DoctorRequest request) {
 		DoctorResponse created = doctorService.createDoctor(request);
-		return ResponseEntity.status(HttpStatus.CREATED).body(created);
+		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Doctor created", created));
 	}
 
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
 	@GetMapping
-	public List<DoctorResponse> listDoctors() {
-		return doctorService.getAllDoctors();
+	public ResponseEntity<ApiResponse<List<DoctorResponse>>> listDoctors() {
+		return ResponseEntity.ok(ApiResponse.success("Doctors retrieved", doctorService.getAllDoctors()));
 	}
 
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
 	@GetMapping("/{id}")
-	public DoctorResponse getDoctor(@PathVariable Long id) {
-		return doctorService.getDoctorById(id);
+	public ResponseEntity<ApiResponse<DoctorResponse>> getDoctor(@PathVariable Long id) {
+		return ResponseEntity.ok(ApiResponse.success("Doctor retrieved", doctorService.getDoctorById(id)));
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/{id}")
-	public DoctorResponse updateDoctor(@PathVariable Long id, @Valid @RequestBody DoctorRequest request) {
-		return doctorService.updateDoctor(id, request);
+	public ResponseEntity<ApiResponse<DoctorResponse>> updateDoctor(@PathVariable Long id, @Valid @RequestBody DoctorRequest request) {
+		return ResponseEntity.ok(ApiResponse.success("Doctor updated", doctorService.updateDoctor(id, request)));
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteDoctor(@PathVariable Long id) {
+	public ResponseEntity<ApiResponse<Void>> deleteDoctor(@PathVariable Long id) {
 		doctorService.deleteDoctor(id);
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success("Doctor deleted", null));
 	}
 
 	// DOCTOR - view own appointments
 	@PreAuthorize("hasRole('DOCTOR')")
 	@GetMapping("/my-appointments")
-	public List<AppointmentResponse> myAppointments(Principal principal) {
-		return doctorService.getMyAppointments(principal);
+	public ResponseEntity<ApiResponse<List<AppointmentResponse>>> myAppointments(Principal principal) {
+		return ResponseEntity.ok(ApiResponse.success("Appointments retrieved", doctorService.getMyAppointments(principal)));
 	}
 
 	@PreAuthorize("hasRole('DOCTOR')")
 	@GetMapping("/my-appointments/today")
-	public List<AppointmentResponse> myTodayAppointments(Principal principal) {
-		return doctorService.getMyTodayAppointments(principal);
+	public ResponseEntity<ApiResponse<List<AppointmentResponse>>> myTodayAppointments(Principal principal) {
+		return ResponseEntity.ok(ApiResponse.success("Today appointments retrieved", doctorService.getMyTodayAppointments(principal)));
 	}
 }
 

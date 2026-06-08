@@ -1,17 +1,19 @@
 package org.example.medicoreapi.dto.request;
 
-/**
- * ===================================================================
- * DTO: MedicineRequest
- * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - DTO nhận dữ liệu khi tạo/cập nhật thuốc
- *
- * CÁC TRƯỜNG:
- * - name (String, @NotBlank)
- * - unit (String)
- * - description (String)
- * - price (BigDecimal, @PositiveOrZero)
- */
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+@Data
+public class MedicineRequest {
+    @NotBlank
+    private String name;
+
+    private String unit;
+    private String description;
+
+    @PositiveOrZero
+    private BigDecimal price;
+}

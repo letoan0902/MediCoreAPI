@@ -1,39 +1,64 @@
 package org.example.medicoreapi.exception;
 
-/**
- * ===================================================================
- * EXCEPTION: GlobalExceptionHandler (Xử lý ngoại lệ tập trung - AOP)
- * NGƯỜI LÀM: Nhóm trưởng tạo khung, MỖI NGƯỜI bổ sung exception của module mình
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - @RestControllerAdvice (AOP - bắt exception toàn cục)
- * - Mỗi method dùng @ExceptionHandler để bắt exception cụ thể
- *
- * CÁC EXCEPTION CẦN XỬ LÝ (KHUNG BAN ĐẦU):
- *
- * 1. @ExceptionHandler(ResourceNotFoundException.class)
- *    - Trả 404 NOT_FOUND + ApiResponse(success=false, message=...)
- *
- * 2. @ExceptionHandler(BadRequestException.class)
- *    - Trả 400 BAD_REQUEST
- *
- * 3. @ExceptionHandler(AccessDeniedException.class)
- *    - Trả 403 FORBIDDEN
- *
- * 4. @ExceptionHandler(AuthenticationException.class)
- *    - Trả 401 UNAUTHORIZED
- *
- * 5. @ExceptionHandler(TokenExpiredException.class) - Người 1 bổ sung
- *    - Trả 401 UNAUTHORIZED + message gợi ý dùng refresh token
- *
- * 6. @ExceptionHandler(MethodArgumentNotValidException.class)
- *    - Trả 400 + danh sách lỗi validation
- *
- * 7. @ExceptionHandler(Exception.class) - fallback
- *    - Trả 500 INTERNAL_SERVER_ERROR
- *    - LOG: logger.error() ghi chi tiết lỗi
- *
- * FORMAT TRẢ VỀ THỐNG NHẤT:
- *   { "success": false, "message": "...", "data": null, "timestamp": "..." }
- */
+import org.example.medicoreapi.dto.response.ApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+        return error(HttpStatus.NOT_FOUND, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBadRequest(BadRequestException ex) {
+        return error(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAccessDenied(AccessDeniedException ex) {
+        return error(HttpStatus.FORBIDDEN, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAuthentication(AuthenticationException ex) {
+        return error(HttpStatus.UNAUTHORIZED, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<ApiResponse<Object>> handleTokenExpired(TokenExpiredException ex) {
+        return error(HttpStatus.UNAUTHORIZED, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Object>> handleValidation(MethodArgumentNotValidException ex) {
+        List<String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .toList();
+        return error(HttpStatus.BAD_REQUEST, "Validation failed", errors);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Object>> handleUnexpected(Exception ex) {
+        logger.error("Unhandled system exception", ex);
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", null);
+    }
+
+    private ResponseEntity<ApiResponse<Object>> error(HttpStatus status, String message, Object data) {
+        return ResponseEntity.status(status).body(ApiResponse.error(message, data));
+    }
+}

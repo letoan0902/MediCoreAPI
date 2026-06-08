@@ -1,14 +1,14 @@
 package org.example.medicoreapi.repository;
 
-/**
- * ===================================================================
- * REPOSITORY: TokenBlacklistRepository
- * NGƯỜI LÀM: Người 1 - Phạm Phương Anh (Auth + JWT)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Extends JpaRepository<TokenBlacklist, Long>
- * - Query methods:
- *   + boolean existsByToken(String token)
- *   + void deleteByExpiryDateBefore(LocalDateTime dateTime) - dọn token hết hạn
- */
+import org.example.medicoreapi.entity.TokenBlacklist;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+public interface TokenBlacklistRepository extends JpaRepository<TokenBlacklist, Long> {
+    boolean existsByToken(String token);
+
+    @Transactional
+    void deleteByExpiryDateBefore(LocalDateTime dateTime);
+}

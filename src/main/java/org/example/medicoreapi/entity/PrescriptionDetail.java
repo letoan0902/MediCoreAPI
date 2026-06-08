@@ -1,25 +1,46 @@
 package org.example.medicoreapi.entity;
 
-/**
- * ===================================================================
- * ENTITY: PrescriptionDetail (Chi tiết đơn thuốc - thuốc nào, liều lượng)
- * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Entity trung gian giữa Prescription và Medicine
- * - @Entity, @Table(name = "prescription_details")
- *
- * CÁC TRƯỜNG CẦN CÓ:
- * - id (Long, @GeneratedValue)
- * - quantity (Integer) - số lượng
- * - dosage (String) - liều dùng (VD: "2 viên/ngày, sau ăn")
- * - notes (String) - ghi chú thêm
- *
- * QUAN HỆ:
- * - @ManyToOne với Prescription
- * - @ManyToOne với Medicine
- *
- * LƯU Ý:
- * - Dùng Lombok: @Data, @Builder, @NoArgsConstructor, @AllArgsConstructor
- */
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Entity
+@Table(name = "prescription_details")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PrescriptionDetail {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Integer quantity;
+    private String dosage;
+
+    @Column(length = 1000)
+    private String notes;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "prescription_id")
+    @ToString.Exclude
+    private Prescription prescription;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "medicine_id")
+    @ToString.Exclude
+    private Medicine medicine;
+}

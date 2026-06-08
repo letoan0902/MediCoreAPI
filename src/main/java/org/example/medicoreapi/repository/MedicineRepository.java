@@ -1,13 +1,10 @@
 package org.example.medicoreapi.repository;
 
-/**
- * ===================================================================
- * REPOSITORY: MedicineRepository
- * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Extends JpaRepository<Medicine, Long>
- * - Thêm query method nếu cần:
- *   + List<Medicine> findByNameContainingIgnoreCase(String name)
- */
+import org.example.medicoreapi.entity.Medicine;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface MedicineRepository extends JpaRepository<Medicine, Long> {
+    List<Medicine> findByNameContainingIgnoreCase(String name);
+}

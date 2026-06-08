@@ -1,14 +1,17 @@
 package org.example.medicoreapi.dto.response;
 
-/**
- * ===================================================================
- * DTO: MedicineResponse
- * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - DTO trả về thông tin thuốc
- *
- * CÁC TRƯỜNG:
- * - id, name, unit, description, price
- */
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Data
+public class MedicineResponse {
+    private Long id;
+    private String name;
+    private String unit;
+    private String description;
+    private BigDecimal price;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+}

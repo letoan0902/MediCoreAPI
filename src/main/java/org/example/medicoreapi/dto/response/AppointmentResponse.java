@@ -11,6 +11,7 @@ public class AppointmentResponse {
 	private String timeSlot;
 	private String status;
 	private String notes;
+	private Long patientId;
 	private String patientName;
 	private Long doctorId;
 	private String doctorName;

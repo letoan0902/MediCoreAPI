@@ -5,9 +5,13 @@ import org.example.medicoreapi.dto.response.AppointmentResponse;
 import org.example.medicoreapi.dto.response.DoctorResponse;
 import org.example.medicoreapi.entity.Appointment;
 import org.example.medicoreapi.entity.Doctor;
+import org.example.medicoreapi.entity.Patient;
+import org.example.medicoreapi.entity.User;
 import org.example.medicoreapi.enums.AppointmentStatus;
+import org.example.medicoreapi.enums.Role;
 import org.example.medicoreapi.repository.AppointmentRepository;
 import org.example.medicoreapi.repository.DoctorRepository;
+import org.example.medicoreapi.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,13 +29,15 @@ import static org.mockito.Mockito.*;
 class DoctorServiceTest {
 	private DoctorRepository doctorRepository;
 	private AppointmentRepository appointmentRepository;
+	private UserRepository userRepository;
 	private DoctorService doctorService;
 
 	@BeforeEach
 	void setUp() {
 		doctorRepository = mock(DoctorRepository.class);
 		appointmentRepository = mock(AppointmentRepository.class);
-		doctorService = new DoctorService(doctorRepository, appointmentRepository);
+		userRepository = mock(UserRepository.class);
+		doctorService = new DoctorService(doctorRepository, appointmentRepository, userRepository);
 	}
 
 	@Test
@@ -63,11 +69,19 @@ class DoctorServiceTest {
 
 	@Test
 	void getMyTodayAppointments_shouldReturnOnlyToday() {
-		Doctor doctor = Doctor.builder().id(2L).username("doc1").fullName("Dr X").build();
-		when(doctorRepository.findByUsername("doc1")).thenReturn(Optional.of(doctor));
+		User doctorUser = User.builder().id(3L).username("doc1").role(Role.DOCTOR).enabled(true).build();
+		Doctor doctor = Doctor.builder().id(2L).user(doctorUser).fullName("Dr X").build();
+		Patient patient = Patient.builder().id(4L).fullName("P1").build();
+		when(doctorRepository.findByUserUsername("doc1")).thenReturn(Optional.of(doctor));
 
-		Appointment a1 = Appointment.builder().id(11L).appointmentDate(LocalDate.now()).timeSlot("09:00").status(AppointmentStatus.CONFIRMED).patientName("P1").doctor(doctor).build();
-		Appointment a2 = Appointment.builder().id(12L).appointmentDate(LocalDate.now().plusDays(1)).timeSlot("10:00").status(AppointmentStatus.PENDING).patientName("P2").doctor(doctor).build();
+		Appointment a1 = Appointment.builder()
+				.id(11L)
+				.appointmentDate(LocalDate.now())
+				.timeSlot("09:00")
+				.status(AppointmentStatus.CONFIRMED)
+				.patient(patient)
+				.doctor(doctor)
+				.build();
 
 		when(appointmentRepository.findByDoctorIdAndAppointmentDate(eq(2L), any(LocalDate.class))).thenReturn(List.of(a1));
 

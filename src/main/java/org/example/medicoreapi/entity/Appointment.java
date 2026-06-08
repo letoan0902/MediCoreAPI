@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "appointments")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -28,13 +29,37 @@ public class Appointment {
 	@Column(length = 1000)
 	private String notes;
 
-	// For simplicity we store patient name directly; patient entity may be linked later
-	private String patientName;
-
 	private LocalDateTime createdAt;
+
+	private LocalDateTime updatedAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "doctor_id")
+	@ToString.Exclude
 	private Doctor doctor;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "patient_id")
+	@ToString.Exclude
+	private Patient patient;
+
+	@OneToOne(mappedBy = "appointment")
+	@ToString.Exclude
+	private Prescription prescription;
+
+	@PrePersist
+	void onCreate() {
+		LocalDateTime now = LocalDateTime.now();
+		createdAt = now;
+		updatedAt = now;
+		if (status == null) {
+			status = AppointmentStatus.PENDING;
+		}
+	}
+
+	@PreUpdate
+	void onUpdate() {
+		updatedAt = LocalDateTime.now();
+	}
 }
 

@@ -1,34 +1,52 @@
 package org.example.medicoreapi.controller;
 
-/**
- * ===================================================================
- * CONTROLLER: AuthController (API xác thực: login, refresh, logout)
- * NGƯỜI LÀM: Người 1 - Phạm Phương Anh (Auth + JWT)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - @RestController, @RequestMapping("/api/auth")
- * - Inject AuthService
- *
- * CÁC ENDPOINT:
- *
- * POST /api/auth/login
- * - Nhận: @RequestBody @Valid LoginRequest
- * - Trả: ResponseEntity<ApiResponse<AuthResponse>> (200 OK)
- *
- * POST /api/auth/refresh
- * - Nhận: @RequestBody @Valid RefreshTokenRequest
- * - Trả: ResponseEntity<ApiResponse<AuthResponse>> (200 OK)
- * - Logic: gửi refresh token, nhận access token mới
- *
- * POST /api/auth/logout
- * - Nhận: Access token từ Header "Authorization: Bearer xxx"
- *         Refresh token từ @RequestBody
- * - Trả: ResponseEntity<ApiResponse<Void>> (200 OK)
- * - Logic: đưa cả 2 token vào blacklist
- *
- * LƯU Ý:
- * - Endpoint login và refresh KHÔNG cần authentication (permitAll)
- * - Endpoint logout CẦN authentication
- * - Phối hợp Người 2 (Đức) để cấu hình permitAll trong SecurityConfig
- */
+import jakarta.validation.Valid;
+import org.example.medicoreapi.dto.request.LoginRequest;
+import org.example.medicoreapi.dto.request.RefreshTokenRequest;
+import org.example.medicoreapi.dto.response.ApiResponse;
+import org.example.medicoreapi.dto.response.AuthResponse;
+import org.example.medicoreapi.service.AuthService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Login successful", authService.login(request)));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<AuthResponse>> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Access token refreshed", authService.refreshToken(request)));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Valid @RequestBody RefreshTokenRequest request
+    ) {
+        authService.logout(extractBearerToken(authorizationHeader), request.getRefreshToken());
+        return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
+    }
+
+    private String extractBearerToken(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return null;
+        }
+        return authorizationHeader.substring(7);
+    }
+}

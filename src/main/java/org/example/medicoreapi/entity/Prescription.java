@@ -1,27 +1,71 @@
 package org.example.medicoreapi.entity;
 
-/**
- * ===================================================================
- * ENTITY: Prescription (Đơn thuốc)
- * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - Entity lưu thông tin đơn thuốc do bác sĩ kê sau khi khám
- * - @Entity, @Table(name = "prescriptions")
- *
- * CÁC TRƯỜNG CẦN CÓ:
- * - id (Long, @GeneratedValue)
- * - diagnosis (String) - chuẩn đoán bệnh
- * - notes (String) - ghi chú bác sĩ
- * - createdAt (LocalDateTime)
- *
- * QUAN HỆ:
- * - @ManyToOne với Doctor (bác sĩ kê đơn)
- * - @ManyToOne với Patient (bệnh nhân được kê)
- * - @OneToOne với Appointment (từ cuộc hẹn nào)
- * - @OneToMany với PrescriptionDetail (chi tiết thuốc)
- *
- * LƯU Ý:
- * - Dùng Lombok: @Data, @Builder, @NoArgsConstructor, @AllArgsConstructor
- */
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "prescriptions")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Prescription {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String diagnosis;
+
+    @Column(length = 1000)
+    private String notes;
+
+    private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", nullable = false)
+    @ToString.Exclude
+    private Doctor doctor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    @ToString.Exclude
+    private Patient patient;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id", unique = true, nullable = false)
+    @ToString.Exclude
+    private Appointment appointment;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "prescription", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<PrescriptionDetail> details = new ArrayList<>();
+
+    @PrePersist
+    void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+}

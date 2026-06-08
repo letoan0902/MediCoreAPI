@@ -1,15 +1,30 @@
 package org.example.medicoreapi.dto.response;
 
-/**
- * ===================================================================
- * DTO: PrescriptionResponse
- * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - DTO trả về thông tin đơn thuốc
- *
- * CÁC TRƯỜNG:
- * - id, doctorName, patientName, diagnosis, notes, createdAt
- * - items (List<PrescriptionItemResponse>) gồm: medicineName, quantity, dosage
- */
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+public class PrescriptionResponse {
+    private Long id;
+    private Long appointmentId;
+    private Long doctorId;
+    private String doctorName;
+    private Long patientId;
+    private String patientName;
+    private String diagnosis;
+    private String notes;
+    private LocalDateTime createdAt;
+    private List<PrescriptionItemResponse> items;
+
+    @Data
+    public static class PrescriptionItemResponse {
+        private Long medicineId;
+        private String medicineName;
+        private String unit;
+        private Integer quantity;
+        private String dosage;
+        private String notes;
+    }
+}

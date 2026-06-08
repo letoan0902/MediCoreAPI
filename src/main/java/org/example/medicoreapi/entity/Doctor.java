@@ -8,7 +8,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "doctors")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -26,16 +27,33 @@ public class Doctor {
 
 	private String email;
 
-	// For simplicity store the username of the linked User (authentication principal)
-	// This avoids tight coupling to a User entity that may be implemented elsewhere
-	@Column(unique = true)
-	private String username;
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", unique = true)
+	@ToString.Exclude
+	private User user;
 
 	private LocalDateTime createdAt;
 
 	private LocalDateTime updatedAt;
 
-	@OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+	@ToString.Exclude
 	private List<Appointment> appointments;
+
+	@OneToMany(mappedBy = "doctor")
+	@ToString.Exclude
+	private List<Prescription> prescriptions;
+
+	@PrePersist
+	void onCreate() {
+		LocalDateTime now = LocalDateTime.now();
+		createdAt = now;
+		updatedAt = now;
+	}
+
+	@PreUpdate
+	void onUpdate() {
+		updatedAt = LocalDateTime.now();
+	}
 }
 

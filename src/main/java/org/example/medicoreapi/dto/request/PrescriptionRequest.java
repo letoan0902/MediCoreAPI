@@ -1,23 +1,40 @@
 package org.example.medicoreapi.dto.request;
 
-/**
- * ===================================================================
- * DTO: PrescriptionRequest
- * NGƯỜI LÀM: Người 5 - Trần Đăng Việt (Medicine + Prescription)
- * ===================================================================
- *
- * HƯỚNG DẪN:
- * - DTO nhận dữ liệu khi bác sĩ tạo đơn thuốc
- *
- * CÁC TRƯỜNG:
- * - appointmentId (Long, @NotNull) - từ cuộc hẹn nào
- * - diagnosis (String, @NotBlank) - chuẩn đoán
- * - notes (String)
- * - items (List<PrescriptionItemRequest>) - danh sách thuốc kê
- *
- * LƯU Ý:
- * - Tạo thêm inner class hoặc class riêng PrescriptionItemRequest gồm:
- *   + medicineId (Long)
- *   + quantity (Integer)
- *   + dosage (String) - liều dùng
- */
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+public class PrescriptionRequest {
+    @NotNull
+    private Long appointmentId;
+
+    @NotBlank
+    private String diagnosis;
+
+    private String notes;
+
+    @Valid
+    @NotEmpty
+    private List<PrescriptionItemRequest> items;
+
+    @Data
+    public static class PrescriptionItemRequest {
+        @NotNull
+        private Long medicineId;
+
+        @NotNull
+        @Min(1)
+        private Integer quantity;
+
+        @NotBlank
+        private String dosage;
+
+        private String notes;
+    }
+}
